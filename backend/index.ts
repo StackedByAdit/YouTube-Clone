@@ -8,18 +8,18 @@ import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3
 import { getSignedUrl, S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
 import { Gender } from "./generated/prisma/enums";
 
-const R2_URL = "https://e21220f4758c0870ba9c388712d42ef2.r2.cloudflarestorage.com";
-const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!;
-const R2_ACCESS_SECRET = process.env.R2_ACCESS_SECRET!;
+// const R2_URL = "https://e21220f4758c0870ba9c388712d42ef2.r2.cloudflarestorage.com";
+// const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID!;
+// const R2_ACCESS_SECRET = process.env.R2_ACCESS_SECRET!;
 
-const S3 = new S3Client({
-  region: "auto",
-  endpoint: R2_URL,
-  credentials: {
-    accessKeyId: R2_ACCESS_KEY_ID,
-    secretAccessKey: R2_ACCESS_SECRET,
-  },
-});
+// const S3 = new S3Client({
+//   region: "auto",
+//   endpoint: R2_URL,
+//   credentials: {
+//     accessKeyId: R2_ACCESS_KEY_ID,
+//     secretAccessKey: R2_ACCESS_SECRET,
+//   },
+// });
 
 const app = express();
 app.use(cors());
@@ -110,7 +110,7 @@ app.get("/api/videos/:id", async (req, res) => {
   const video = await prisma.uploads.findUnique({
     where: { id: req.params.id },
     include: { user: { select: { id: true, channelName: true, profilePicture: true, subscriberCount: true } } },
-  });
+  });[]
   if (!video) { res.status(404).json({ error: "Video not found" }); return; }
   res.json(video);
 });
@@ -132,26 +132,26 @@ app.post("/api/videos", async (req, res) => {
 });
 
 
-app.post("/getPresignedUrl", async (req, res) => {
+// app.post("/getPresignedUrl", async (req, res) => {
 
-  const videoPath = "videos/" + Math.random() + ".mp4";
+//   const videoPath = "videos/" + Math.random() + ".mp4";
   
-  const putUrl = await getSignedUrl(
-    S3,
-    new PutObjectCommand({
-      Bucket: "youtube-100xdevs",
-      Key: videoPath,
-      ContentType: "video/mp4",
-    }),
-    { expiresIn: 3600 },
-  );
+//   const putUrl = await getSignedUrl(
+//     S3,
+//     new PutObjectCommand({
+//       Bucket: "youtube-100xdevs",
+//       Key: videoPath,
+//       ContentType: "video/mp4",
+//     }),
+//     { expiresIn: 3600 },
+//   );
 
-  res.json({
-    putUrl,
-    finalVideoUrl: "https://pub-9ed79a211b484b3f819c6f0883e7ac3e.r2.dev/" + videoPath
-  })
+//   res.json({
+//     putUrl,
+//     finalVideoUrl: "https://pub-9ed79a211b484b3f819c6f0883e7ac3e.r2.dev/" + videoPath
+//   })
 
-})
+// })
 
 
 app.listen(3000, () => {
