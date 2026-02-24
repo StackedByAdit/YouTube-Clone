@@ -41,9 +41,7 @@ function getUserId(req: express.Request): string | null {
 const signupSchema = z.object({
   username: z.string().min(3),
   password: z.string().min(6),
-  firstName : z.string(),
-  lastName : z.string(),
-  gender: z.enum(Gender),
+  gender: z.nativeEnum(Gender),
   channelName: z.string().min(1),
 });
 
@@ -66,7 +64,7 @@ app.post("/api/signup", async (req, res) => {
 
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  const { username, password, firstName, lastName, gender, channelName } = parsed.data;
+  const { username, password, gender, channelName } = parsed.data;
 
   const existing = await prisma.user.findFirst({ where: { username } });
 
@@ -75,7 +73,7 @@ app.post("/api/signup", async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
-    data: { username, password: hashedPassword, firstName, lastName, gender, channelName }
+    data: { username, password: hashedPassword, gender, channelName }
   });
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET);
