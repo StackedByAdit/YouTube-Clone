@@ -172,6 +172,36 @@ app.post("/getPresignedUrl", async (req, res) => {
     { expiresIn: 3600 },
   );
 
+  app.get("/api/search", async (req, res) => {
+  const query = req.query.q as string;
+
+  if (!query || query.trim() === "") {
+    return res.json([]);
+  }
+
+  const videos = await prisma.uploads.findMany({
+    where: {
+      title: {
+        contains: query,
+        mode: "insensitive"
+      }
+    },
+    include: {
+      user: {
+        select: {
+          channelName: true,
+          profilePicture: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+
+  res.json(videos);
+});
+
   res.json({
     putUrl,
     finalVideoUrl: "https://pub-9ed79a211b484b3f819c6f0883e7ac3e.r2.dev/" + videoPath
