@@ -1,92 +1,86 @@
-import axios from "axios"
-import type { S } from "node_modules/react-router/dist/development/router-5iOvts3c.d.mts"
-import { useEffect } from "react"
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { VideoCard } from "../components/VideoCard";
 
+interface Video {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  videoUrl: string;
+  createdAt : string
+  user: {
+    channelName: string;
+    profilePicture: string | null;
+  };
+}
 
 export function Landing() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    // useEffect(() => {
-    //     axios.get("http://localhost:3000/api/vidoes")
-    // }, [])
+  useEffect(() => {
+    axios
+      .get("http://localhost:3000/api/videos")
+      .then((response) => {
+        setVideos(response.data);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
+  if (loading) {
     return (
-        <div style={{display:"flex", gap: 10}}>
-            <div style={{ display: "flex" }}>
-                <VideoCard
-                    thumbnailUrl="https://imgs.search.brave.com/sPyQrAFZvrVU6ugGsf0FK6MwPmSDboLuORJ6ms2gAqM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1Qk9EQTNabUpp/WXpRdE9HWXdOeTAw/WkdRekxXRTJPR010/TkdaaVpqZzBOV05o/T0RjMVhrRXlYa0Zx/Y0dkZVFXUnBaV2R0/YjI1bi5fVjFfUUw3/NV9VWDUwMF9DUjAs/MCw1MDAsMjgxXy5q/cGc"
-                    title="Shinobu vs Douma || Demon Slayer Infnity Castle the Movie"
-                    profilePicture="https://avatars.githubusercontent.com/u/215988621?v=4"
-                    channelName="Demon Slayer"
-                />
-            </div>
-
-            <div style={{ display: "flex" }}>
-                <VideoCard
-                    thumbnailUrl="https://imgs.search.brave.com/sPyQrAFZvrVU6ugGsf0FK6MwPmSDboLuORJ6ms2gAqM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1Qk9EQTNabUpp/WXpRdE9HWXdOeTAw/WkdRekxXRTJPR010/TkdaaVpqZzBOV05o/T0RjMVhrRXlYa0Zx/Y0dkZVFXUnBaV2R0/YjI1bi5fVjFfUUw3/NV9VWDUwMF9DUjAs/MCw1MDAsMjgxXy5q/cGc"
-                    title="Shinobu vs Douma || Demon Slayer Infnity Castle the Movie"
-                    profilePicture="https://avatars.githubusercontent.com/u/215988621?v=4"
-                    channelName="Demon Slayer"
-                />
-            </div>
-
-            <div style={{ display: "flex" }}>
-                <VideoCard
-                    thumbnailUrl="https://imgs.search.brave.com/sPyQrAFZvrVU6ugGsf0FK6MwPmSDboLuORJ6ms2gAqM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1Qk9EQTNabUpp/WXpRdE9HWXdOeTAw/WkdRekxXRTJPR010/TkdaaVpqZzBOV05o/T0RjMVhrRXlYa0Zx/Y0dkZVFXUnBaV2R0/YjI1bi5fVjFfUUw3/NV9VWDUwMF9DUjAs/MCw1MDAsMjgxXy5q/cGc"
-                    title="Shinobu vs Douma || Demon Slayer Infnity Castle the Movie"
-                    profilePicture="https://avatars.githubusercontent.com/u/215988621?v=4"
-                    channelName="Demon Slayer"
-                />
-            </div>
-        </div>
-
-
-    )
-}
-
-interface VideoDetails {
-    profilePicture: string
-    title: string
-    channelName: string
-    thumbnailUrl: string
-}
-
-function VideoCard({ profilePicture, channelName, title, thumbnailUrl }: VideoDetails) {
-    return (
-        <div style={{ width: 320, cursor: "pointer" }}>
-
-            <img
-                src={thumbnailUrl}
-                style={{
-                    width: "100%",
-                    borderRadius: 12,
-                    display: "block"
-                }}
-            />
-
-            <div style={{ display: "flex", marginTop: 12 }}>
-
-                <img
-                    src={profilePicture}
-                    style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "50%",
-                        marginRight: 12
-                    }}
-                />
-
-                <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-
-                    <div style={{ fontWeight: 500, fontSize: 16, lineHeight: "20px" }}>
-                        {title}
-                    </div>
-
-                    <div style={{ color: "#606060", fontSize: 14, marginTop: 4 }}>
-                        {channelName}
-                    </div>
-
-                </div>
-            </div>
-        </div>
+      <div style={{ paddingTop: 80, textAlign: "center" }}>
+        Loading videos...
+      </div>
     );
+  }
+
+  function getTimeAgo(dateString: string) {
+  const now = new Date();
+  const created = new Date(dateString);
+  const diff = Math.floor((now.getTime() - created.getTime()) / 1000);
+
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 31536000) return `${Math.floor(diff / 2592000)}mo ago`;
+
+  return `${Math.floor(diff / 31536000)}y ago`;
+}
+
+  return (
+    <div
+      style={{
+        paddingTop: 80,
+        paddingLeft: 30,
+        paddingRight: 30,
+        backgroundColor: "#f9f9f9",
+        minHeight: "100vh"
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: 20
+        }}
+      >
+        {videos.map((video) => (
+          <VideoCard
+            key={video.id}
+            href={`/watch?id=${video.id}`}
+            thumbnailUrl={video.thumbnailUrl}
+            title={video.title}
+            profilePicture={
+              video.user.profilePicture ||
+              "https://via.placeholder.com/40"
+            }
+            channelName={video.user.channelName}
+            timeAgo={getTimeAgo(video.createdAt)}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
