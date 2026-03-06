@@ -76,7 +76,7 @@ app.post("/api/signup", async (req, res) => {
     data: { username, password: hashedPassword, gender, channelName }
   });
 
-  res.status(201).json({ message : "User created successfully" });
+  res.status(201).json({ message: "User created successfully" });
 });
 
 app.post("/api/signin", async (req, res) => {
@@ -153,10 +153,46 @@ app.get("/channel/:username", async (req, res) => {
     }
   })
   res.json({
-    channelDetails, 
+    channelDetails,
     userVideos
   })
 })
+
+
+app.get("/api/search", async (req, res) => {
+  const query = req.query.q as string;
+
+  if (!query || query.trim() === "") {
+    return res.json([]);
+  }
+
+  try {
+    const videos = await prisma.uploads.findMany({
+      where: {
+        title: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        user: {
+          select: {
+            channelName: true,
+            profilePicture: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.json(videos);
+  } catch (err) {
+    res.status(500).json({ error: "Search failed" });
+  }
+});
+
 
 app.post("/getPresignedUrl", async (req, res) => {
 
@@ -172,43 +208,12 @@ app.post("/getPresignedUrl", async (req, res) => {
     { expiresIn: 3600 },
   );
 
-  app.get("/api/search", async (req, res) => {
-  const query = req.query.q as string;
-
-  if (!query || query.trim() === "") {
-    return res.json([]);
-  }
-
-  const videos = await prisma.uploads.findMany({
-    where: {
-      title: {
-        contains: query,
-        mode: "insensitive"
-      }
-    },
-    include: {
-      user: {
-        select: {
-          channelName: true,
-          profilePicture: true
-        }
-      }
-    },
-    orderBy: {
-      createdAt: "desc"
-    }
-  });
-
-  res.json(videos);
-});
-
   res.json({
     putUrl,
     finalVideoUrl: "https://pub-9ed79a211b484b3f819c6f0883e7ac3e.r2.dev/" + videoPath
   })
 
 })
-
 
 app.listen(3000, () => {
   console.log("Server running on http://localhost:3000");

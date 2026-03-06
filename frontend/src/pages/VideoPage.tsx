@@ -25,7 +25,6 @@ export function VideoPage() {
 
   useEffect(() => {
     if (!id) return;
-
     axios
       .get("http://localhost:3000/api/videos/" + id)
       .then((response) => {
